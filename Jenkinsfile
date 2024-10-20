@@ -20,7 +20,7 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'dev-sec-ops-cicd-pipeline-project-one', url: 'https://github.com/awanmbandi/realworld-microservice-project.git'
+                git branch: 'dev-sec-ops-cicd-pipeline-project-one', url: 'https://github.com/tahmichael25/realworld-microservice-101924project.git'
             }
         }
         stage('Install Dependencies') {
@@ -59,15 +59,15 @@ pipeline{
                 script{
                    withDockerRegistry(credentialsId: 'DockerHub-Credential', toolName: 'Docker'){
                        sh "docker build -t reddit ."
-                       sh "docker tag reddit awanmbandi/reddit:latest "
-                       sh "docker push awanmbandi/reddit:latest "
+                       sh "docker tag reddit tahmichael25/reddit:latest "
+                       sh "docker push tahmichael25/reddit:latest "
                     }
                 }
             }
         }
         stage("Trivy App Image Scan"){
             steps{
-                sh "trivy image awanmbandi/reddit:latest > trivy_image_analysis_report.txt"
+                sh "trivy image tahmichael25/reddit:latest > trivy_image_analysis_report.txt"
             }
         }
         stage('Deploy to K8S Stage Environment'){
@@ -84,7 +84,7 @@ pipeline{
         stage('ZAP Dynamic Testing | DAST') {
             steps {
                 sshagent(['OWASP-Zap-Credential']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@3.15.151.251 "docker run -t owasp/zap2docker-stable zap-baseline.py -t http://18.188.161.121:30000/" || true'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@34.219.173.219 "docker run -t owasp/zap2docker-stable zap-baseline.py -t http://54.213.24.221:30000/" || true'
                                                         //JENKINS_PUBLIC_IP                                                      //EKS_WORKER_NODE_IP_ADDRESS:3000
                 }
             }
@@ -109,7 +109,7 @@ pipeline{
     post {
     always {
         echo 'Slack Notifications.'
-        slackSend channel: '#general', //update and provide your channel name
+        slackSend channel: '#mt5-devsecops-cicd-alerts', //update and provide your channel name
         color: COLOR_MAP[currentBuild.currentResult],
         message: "*${currentBuild.currentResult}:* Job Name '${env.JOB_NAME}' build ${env.BUILD_NUMBER} \n Build Timestamp: ${env.BUILD_TIMESTAMP} \n Project Workspace: ${env.WORKSPACE} \n More info at: ${env.BUILD_URL}"
     }
